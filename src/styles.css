@@ -97,9 +97,33 @@
   --sidebar-accent-foreground: oklch(0.34 0.07 250);
   --sidebar-border: oklch(0.92 0.012 250);
   --sidebar-ring: oklch(0.34 0.07 250);
-  --gradient-hero: linear-gradient(135deg, oklch(0.34 0.07 250), oklch(0.22 0.06 255));
+  --gradient-hero: linear-gradient(135deg, #1e3a5f 0%, #2d3a8c 50%, #4f46e5 100%);
+  --gradient-icon: linear-gradient(135deg, #1e3a5f 0%, #4f46e5 100%);
   --shadow-elegant: 0 10px 40px -10px oklch(0.34 0.07 250 / 0.25);
+  --shadow-glow: 0 20px 60px -15px rgba(79, 70, 229, 0.5);
 }
+
+@keyframes float-slow {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(20px, -30px) scale(1.05); }
+}
+@keyframes float-medium {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(-25px, 20px); }
+}
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes pulse-soft {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.7; }
+}
+
+.animate-float-slow { animation: float-slow 8s ease-in-out infinite; }
+.animate-float-medium { animation: float-medium 6s ease-in-out infinite; }
+.animate-fade-up { animation: fade-up 0.7s ease-out both; }
+.animate-pulse-soft { animation: pulse-soft 4s ease-in-out infinite; }
 
 .dark {
   --background: oklch(0.129 0.042 264.695);
