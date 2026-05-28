@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { GraduationCap } from "lucide-react";
+import { GraduationCap, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -22,18 +22,38 @@ function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [resetting, setResetting] = useState(false);
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
     setLoading(false);
-    if (error) {
-      toast.error(error.message);
+    if (signInError) {
+      setError("Invalid email or password. Please try again.");
       return;
     }
     toast.success("Welcome back!");
     navigate({ to: "/dashboard" });
+  };
+
+  const onForgot = async () => {
+    if (!email) {
+      setError("Enter your email above first, then click 'Forgot Password?'");
+      return;
+    }
+    setResetting(true);
+    const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    setResetting(false);
+    if (resetError) {
+      toast.error(resetError.message);
+      return;
+    }
+    toast.success("Password reset email sent. Check your inbox.");
   };
 
   return (
@@ -54,11 +74,28 @@ function LoginPage() {
               <Input id="email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@college.edu" />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="password">Password</Label>
+                <button
+                  type="button"
+                  onClick={onForgot}
+                  disabled={resetting}
+                  className="text-xs font-medium text-primary hover:underline disabled:opacity-50"
+                >
+                  {resetting ? "Sending..." : "Forgot Password?"}
+                </button>
+              </div>
               <Input id="password" type="password" required value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" />
             </div>
+            {error && (
+              <div className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">{error}</div>
+            )}
             <Button type="submit" className="w-full h-11" disabled={loading}>
-              {loading ? "Logging in..." : "Log In"}
+              {loading ? (
+                <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Logging in...</>
+              ) : (
+                "Login"
+              )}
             </Button>
           </form>
           <p className="mt-6 text-center text-sm text-muted-foreground">
