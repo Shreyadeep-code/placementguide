@@ -7,20 +7,18 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
-export const Route = createFileRoute("/signup")({
+export const Route = createFileRoute("/reset-password")({
   head: () => ({
     meta: [
-      { title: "Sign Up — PlaceAI" },
-      { name: "description", content: "Create your free PlaceAI account." },
+      { title: "Reset Password — PlaceAI" },
+      { name: "description", content: "Set a new password for your PlaceAI account." },
     ],
   }),
-  component: SignupPage,
+  component: ResetPasswordPage,
 });
 
-function SignupPage() {
+function ResetPasswordPage() {
   const navigate = useNavigate();
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [loading, setLoading] = useState(false);
@@ -38,21 +36,15 @@ function SignupPage() {
       return;
     }
     setLoading(true);
-    const { error: signUpError } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: `${window.location.origin}/dashboard`,
-        data: { full_name: name },
-      },
-    });
+    const { error: updateError } = await supabase.auth.updateUser({ password });
     setLoading(false);
-    if (signUpError) {
-      setError(signUpError.message);
+    if (updateError) {
+      setError(updateError.message);
       return;
     }
-    toast.success("Welcome to PlaceAI!");
-    navigate({ to: "/dashboard" });
+    toast.success("Password updated. Please log in.");
+    await supabase.auth.signOut();
+    navigate({ to: "/login" });
   };
 
   return (
@@ -65,42 +57,28 @@ function SignupPage() {
           <span className="text-2xl font-bold text-primary">PlaceAI</span>
         </Link>
         <div className="rounded-2xl border border-border bg-card p-8 shadow-[var(--shadow-elegant)]">
-          <h1 className="text-2xl font-bold text-foreground">Create your account</h1>
-          <p className="mt-1 text-sm text-muted-foreground">Start prepping for your dream placement</p>
+          <h1 className="text-2xl font-bold text-foreground">Set a new password</h1>
+          <p className="mt-1 text-sm text-muted-foreground">Enter your new password below.</p>
           <form onSubmit={onSubmit} className="mt-6 space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="name">Full name</Label>
-              <Input id="name" required value={name} onChange={(e) => setName(e.target.value)} placeholder="Aarav Sharma" />
+              <Label htmlFor="password">New password</Label>
+              <Input id="password" type="password" required minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@college.edu" />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input id="password" type="password" required minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="At least 6 characters" />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="confirm">Confirm password</Label>
-              <Input id="confirm" type="password" required value={confirm} onChange={(e) => setConfirm(e.target.value)} placeholder="Re-enter password" />
+              <Label htmlFor="confirm">Confirm new password</Label>
+              <Input id="confirm" type="password" required value={confirm} onChange={(e) => setConfirm(e.target.value)} />
             </div>
             {error && (
               <div className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">{error}</div>
             )}
             <Button type="submit" className="w-full h-11" disabled={loading}>
               {loading ? (
-                <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Creating account...</>
+                <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Updating...</>
               ) : (
-                "Create Account"
+                "Update Password"
               )}
             </Button>
           </form>
-          <p className="mt-6 text-center text-sm text-muted-foreground">
-            Already have an account?{" "}
-            <Link to="/login" className="font-medium text-primary hover:underline">
-              Log in
-            </Link>
-          </p>
         </div>
       </div>
     </div>

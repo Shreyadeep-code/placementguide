@@ -14,7 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      resume_reports: {
+        Row: {
+          ats_score: number | null
+          created_at: string
+          id: string
+          keywords_missing: string[] | null
+          strengths: string[] | null
+          student_name: string | null
+          suggestions: string[] | null
+          user_id: string
+          weaknesses: string[] | null
+        }
+        Insert: {
+          ats_score?: number | null
+          created_at?: string
+          id?: string
+          keywords_missing?: string[] | null
+          strengths?: string[] | null
+          student_name?: string | null
+          suggestions?: string[] | null
+          user_id: string
+          weaknesses?: string[] | null
+        }
+        Update: {
+          ats_score?: number | null
+          created_at?: string
+          id?: string
+          keywords_missing?: string[] | null
+          strengths?: string[] | null
+          student_name?: string | null
+          suggestions?: string[] | null
+          user_id?: string
+          weaknesses?: string[] | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

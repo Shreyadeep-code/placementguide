@@ -1,10 +1,11 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { FileText, MessageSquare, GraduationCap, LogOut, Upload, Play } from "lucide-react";
+import { FileText, MessageSquare, GraduationCap, LogOut, Upload, Play, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { useAuth, getDisplayName } from "@/hooks/use-auth";
 
 export const Route = createFileRoute("/dashboard")({
   head: () => ({
@@ -20,29 +21,30 @@ type Tab = "resume" | "interview";
 
 function DashboardPage() {
   const navigate = useNavigate();
+  const { user, loading } = useAuth();
   const [tab, setTab] = useState<Tab>("resume");
-  const [email, setEmail] = useState<string | null>(null);
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setEmail(session?.user.email ?? null);
-      if (!session) navigate({ to: "/login" });
-    });
-    supabase.auth.getSession().then(({ data }) => {
-      if (!data.session) {
-        navigate({ to: "/login" });
-      } else {
-        setEmail(data.session.user.email ?? null);
-      }
-    });
-    return () => subscription.unsubscribe();
-  }, [navigate]);
+    if (!loading && !user) {
+      navigate({ to: "/login" });
+    }
+  }, [user, loading, navigate]);
 
   const onLogout = async () => {
     await supabase.auth.signOut();
     toast.success("Logged out");
     navigate({ to: "/" });
   };
+
+  if (loading || !user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-secondary">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  const name = getDisplayName(user);
 
   return (
     <div className="min-h-screen bg-secondary">
@@ -57,7 +59,7 @@ function DashboardPage() {
               <span className="text-xl font-bold text-primary">PlaceAI</span>
             </Link>
             <div className="flex items-center gap-3">
-              {email && <span className="hidden sm:inline text-sm text-muted-foreground">{email}</span>}
+              <span className="hidden sm:inline text-sm text-foreground font-medium">Hi, {name}</span>
               <Button variant="ghost" size="sm" onClick={onLogout}>
                 <LogOut className="h-4 w-4" />
                 <span className="hidden sm:inline ml-2">Logout</span>

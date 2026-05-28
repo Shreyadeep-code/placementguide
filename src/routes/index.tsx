@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import {
   FileText,
   MessageSquare,
@@ -11,9 +11,13 @@ import {
   Sparkles,
   Trophy,
   Star,
+  LogOut,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import dashboardMockup from "@/assets/dashboard-mockup.png";
+import { useAuth, getDisplayName } from "@/hooks/use-auth";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -90,6 +94,16 @@ function LandingPage() {
 }
 
 function Nav() {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const name = getDisplayName(user);
+
+  const onLogout = async () => {
+    await supabase.auth.signOut();
+    toast.success("Logged out");
+    navigate({ to: "/" });
+  };
+
   return (
     <header className="absolute top-0 left-0 right-0 z-20">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-5">
@@ -100,14 +114,33 @@ function Nav() {
           <span className="text-xl font-bold text-white">PlaceAI</span>
         </Link>
         <div className="flex items-center gap-2">
-          <Link to="/login">
-            <Button variant="ghost" className="text-white hover:bg-white/10 hover:text-white">
-              Login
-            </Button>
-          </Link>
-          <Link to="/signup">
-            <Button className="bg-white text-primary hover:bg-white/90">Sign Up</Button>
-          </Link>
+          {user ? (
+            <>
+              <span className="hidden sm:inline text-sm text-white/90 mr-1">Hi, {name}</span>
+              <Link to="/dashboard">
+                <Button className="bg-white text-primary hover:bg-white/90">Dashboard</Button>
+              </Link>
+              <Button
+                variant="ghost"
+                onClick={onLogout}
+                className="text-white hover:bg-white/10 hover:text-white"
+              >
+                <LogOut className="h-4 w-4 sm:mr-2" />
+                <span className="hidden sm:inline">Logout</span>
+              </Button>
+            </>
+          ) : (
+            <>
+              <Link to="/login">
+                <Button variant="ghost" className="text-white hover:bg-white/10 hover:text-white">
+                  Login
+                </Button>
+              </Link>
+              <Link to="/signup">
+                <Button className="bg-white text-primary hover:bg-white/90">Get Started Free</Button>
+              </Link>
+            </>
+          )}
         </div>
       </div>
     </header>
