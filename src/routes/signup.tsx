@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { GraduationCap } from "lucide-react";
+import { GraduationCap, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -22,12 +22,23 @@ function SignupPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirm, setConfirm] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters.");
+      return;
+    }
+    if (password !== confirm) {
+      setError("Passwords do not match.");
+      return;
+    }
     setLoading(true);
-    const { error } = await supabase.auth.signUp({
+    const { error: signUpError } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -36,11 +47,11 @@ function SignupPage() {
       },
     });
     setLoading(false);
-    if (error) {
-      toast.error(error.message);
+    if (signUpError) {
+      setError(signUpError.message);
       return;
     }
-    toast.success("Account created! Check your email to confirm.");
+    toast.success("Welcome to PlaceAI!");
     navigate({ to: "/dashboard" });
   };
 
@@ -69,8 +80,19 @@ function SignupPage() {
               <Label htmlFor="password">Password</Label>
               <Input id="password" type="password" required minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="At least 6 characters" />
             </div>
+            <div className="space-y-2">
+              <Label htmlFor="confirm">Confirm password</Label>
+              <Input id="confirm" type="password" required value={confirm} onChange={(e) => setConfirm(e.target.value)} placeholder="Re-enter password" />
+            </div>
+            {error && (
+              <div className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">{error}</div>
+            )}
             <Button type="submit" className="w-full h-11" disabled={loading}>
-              {loading ? "Creating account..." : "Get Started Free"}
+              {loading ? (
+                <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Creating account...</>
+              ) : (
+                "Create Account"
+              )}
             </Button>
           </form>
           <p className="mt-6 text-center text-sm text-muted-foreground">
