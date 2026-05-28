@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import {
   FileText,
   MessageSquare,
@@ -11,9 +11,13 @@ import {
   Sparkles,
   Trophy,
   Star,
+  LogOut,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import dashboardMockup from "@/assets/dashboard-mockup.png";
+import { useAuth, getDisplayName } from "@/hooks/use-auth";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/")({
   head: () => ({
