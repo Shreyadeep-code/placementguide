@@ -201,7 +201,7 @@ function ResumePanel({ studentName }: { studentName: string }) {
         </div>
       )}
 
-      {result && <Results result={result} />}
+      {result && <Results result={result} studentName={studentName} />}
     </div>
   );
 }
