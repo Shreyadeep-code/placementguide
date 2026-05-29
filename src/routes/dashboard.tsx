@@ -288,6 +288,21 @@ function Results({ result, studentName }: { result: ResumeAnalysis; studentName:
           ))}
         </div>
       </div>
+
+      <div className="flex justify-center pt-2">
+        <Button
+          size="lg"
+          onClick={onDownload}
+          disabled={downloading}
+          className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 h-12 text-base"
+        >
+          {downloading ? (
+            <><Loader2 className="h-5 w-5 animate-spin mr-2" /> Generating PDF...</>
+          ) : (
+            <><Download className="h-5 w-5 mr-2" /> Download PDF Report</>
+          )}
+        </Button>
+      </div>
     </div>
   );
 }
