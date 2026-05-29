@@ -206,7 +206,17 @@ function ResumePanel({ studentName }: { studentName: string }) {
   );
 }
 
-function Results({ result }: { result: ResumeAnalysis }) {
+function Results({ result, studentName }: { result: ResumeAnalysis; studentName: string }) {
+  const [downloading, setDownloading] = useState(false);
+  const onDownload = async () => {
+    setDownloading(true);
+    try {
+      await Promise.resolve();
+      generateResumePdf({ studentName, analysis: result });
+    } finally {
+      setDownloading(false);
+    }
+  };
   const score = Math.max(0, Math.min(100, Math.round(result.ats_score)));
   const color = score <= 40 ? "#ef4444" : score <= 70 ? "#f97316" : "#22c55e";
   const colorLabel = score <= 40 ? "Needs work" : score <= 70 ? "Decent" : "Excellent";
