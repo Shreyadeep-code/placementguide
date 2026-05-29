@@ -1,0 +1,1 @@
+ALTER TABLE public.resume_reports ADD COLUMN IF NOT EXISTS section_scores jsonb;
