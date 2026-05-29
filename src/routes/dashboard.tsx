@@ -12,9 +12,11 @@ import {
   XCircle,
   ArrowRight,
   Sparkles,
+  Download,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
+import { generateResumePdf } from "@/lib/resume-pdf";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -199,12 +201,22 @@ function ResumePanel({ studentName }: { studentName: string }) {
         </div>
       )}
 
-      {result && <Results result={result} />}
+      {result && <Results result={result} studentName={studentName} />}
     </div>
   );
 }
 
-function Results({ result }: { result: ResumeAnalysis }) {
+function Results({ result, studentName }: { result: ResumeAnalysis; studentName: string }) {
+  const [downloading, setDownloading] = useState(false);
+  const onDownload = async () => {
+    setDownloading(true);
+    try {
+      await Promise.resolve();
+      generateResumePdf({ studentName, analysis: result });
+    } finally {
+      setDownloading(false);
+    }
+  };
   const score = Math.max(0, Math.min(100, Math.round(result.ats_score)));
   const color = score <= 40 ? "#ef4444" : score <= 70 ? "#f97316" : "#22c55e";
   const colorLabel = score <= 40 ? "Needs work" : score <= 70 ? "Decent" : "Excellent";
@@ -275,6 +287,21 @@ function Results({ result }: { result: ResumeAnalysis }) {
             </span>
           ))}
         </div>
+      </div>
+
+      <div className="flex justify-center pt-2">
+        <Button
+          size="lg"
+          onClick={onDownload}
+          disabled={downloading}
+          className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 h-12 text-base"
+        >
+          {downloading ? (
+            <><Loader2 className="h-5 w-5 animate-spin mr-2" /> Generating PDF...</>
+          ) : (
+            <><Download className="h-5 w-5 mr-2" /> Download PDF Report</>
+          )}
+        </Button>
       </div>
     </div>
   );
