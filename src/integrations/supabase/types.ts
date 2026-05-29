@@ -20,6 +20,7 @@ export type Database = {
           created_at: string
           id: string
           keywords_missing: string[] | null
+          section_scores: Json | null
           strengths: string[] | null
           student_name: string | null
           suggestions: string[] | null
@@ -31,6 +32,7 @@ export type Database = {
           created_at?: string
           id?: string
           keywords_missing?: string[] | null
+          section_scores?: Json | null
           strengths?: string[] | null
           student_name?: string | null
           suggestions?: string[] | null
@@ -42,6 +44,7 @@ export type Database = {
           created_at?: string
           id?: string
           keywords_missing?: string[] | null
+          section_scores?: Json | null
           strengths?: string[] | null
           student_name?: string | null
           suggestions?: string[] | null
