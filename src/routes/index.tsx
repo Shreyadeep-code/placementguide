@@ -38,11 +38,11 @@ export const Route = createFileRoute("/")({
   component: LandingPage,
 });
 
-const stats = [
-  { value: "10,000+", label: "Students" },
-  { value: "95%", label: "Placement Rate" },
-  { value: "50+", label: "Companies" },
-  { value: "4.9★", label: "Star Rating" },
+const highlights = [
+  { icon: Sparkles, label: "AI Powered Analysis" },
+  { icon: Star, label: "Made for Indian Students \u{1F1EE}\u{1F1F3}" },
+  { icon: GraduationCap, label: "TCS, Infosys, Wipro Focused" },
+  { icon: ArrowRight, label: "Free to Get Started" },
 ];
 
 const features = [
@@ -217,13 +217,14 @@ function Stats() {
   return (
     <section className="bg-background py-14 border-b border-border">
       <div className="mx-auto max-w-6xl px-4">
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-8">
-          {stats.map((s) => (
-            <div key={s.label} className="text-center">
-              <div className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-[#1e3a5f] to-[#4f46e5] bg-clip-text text-transparent">
-                {s.value}
-              </div>
-              <div className="mt-1 text-sm text-muted-foreground">{s.label}</div>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
+          {highlights.map((h) => (
+            <div
+              key={h.label}
+              className="flex items-center justify-center gap-2.5 text-center rounded-xl border border-border bg-card/60 px-4 py-5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-sm"
+            >
+              <h.icon className="h-5 w-5 text-primary shrink-0" />
+              <span className="text-sm font-medium text-foreground">{h.label}</span>
             </div>
           ))}
         </div>
