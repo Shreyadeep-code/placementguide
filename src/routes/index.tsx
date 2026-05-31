@@ -5,7 +5,6 @@ import {
   BarChart3,
   FileDown,
   GraduationCap,
-  Play,
   ArrowRight,
   Upload,
   Sparkles,
@@ -14,25 +13,35 @@ import {
   LogOut,
   ChevronLeft,
   ChevronRight,
+  Menu,
+  X,
+  Zap,
+  ShieldCheck,
+  Globe2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import dashboardMockup from "@/assets/dashboard-mockup.png";
 import { useAuth, getDisplayName } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import {
+  motion,
+  AnimatePresence,
+  useReducedMotion,
+  useScroll,
+  useSpring,
+} from "framer-motion";
 import { useEffect, useState } from "react";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "PlaceAI — Crack Your Dream Placement" },
+      { title: "PlaceAI — Crack Your Dream Placement with AI" },
       {
         name: "description",
         content:
-          "AI-powered resume review and mock interviews for Indian campus placements at top IT and product based companies. Built for Indian engineering students.",
+          "AI-powered resume review and mock interviews for Indian campus placements at top IT and product based companies.",
       },
-      { property: "og:title", content: "PlaceAI — Crack Your Dream Placement" },
+      { property: "og:title", content: "PlaceAI — Crack Your Dream Placement with AI" },
       {
         property: "og:description",
         content: "AI-powered resume review and mock interviews for Indian engineering students.",
@@ -42,24 +51,35 @@ export const Route = createFileRoute("/")({
   component: LandingPage,
 });
 
-const highlights = [
-  { icon: Sparkles, label: "AI Powered Analysis" },
-  { icon: Star, label: "Made for Indian Students \u{1F1EE}\u{1F1F3}" },
-  { icon: GraduationCap, label: "Top IT Companies Focused" },
-  { icon: ArrowRight, label: "Free to Get Started" },
-];
-
 const features = [
-  { icon: BarChart3, title: "ATS Score Checker", desc: "Instantly see how applicant tracking systems will rank your resume." },
-  { icon: FileText, title: "AI Resume Review", desc: "Detailed, line-by-line feedback to make your resume recruiter-ready." },
-  { icon: MessageSquare, title: "Mock Interview", desc: "Practice role-specific questions with real-time AI feedback." },
-  { icon: FileDown, title: "PDF Report Download", desc: "A polished report with all insights — perfect to share with mentors." },
+  { icon: BarChart3, title: "ATS Score Checker", desc: "See exactly how applicant tracking systems rank your resume — before recruiters do." },
+  { icon: FileText, title: "AI Resume Review", desc: "Line-by-line feedback that turns a draft into a recruiter-ready resume." },
+  { icon: MessageSquare, title: "Mock Interview", desc: "Practice role-specific questions with real-time AI feedback and scoring." },
+  { icon: FileDown, title: "PDF Report Download", desc: "A polished, shareable report — perfect for mentors and your placement cell." },
 ];
 
 const steps = [
-  { num: "01", icon: Upload, title: "Upload Resume", desc: "Drop in your PDF or DOCX in seconds." },
-  { num: "02", icon: Sparkles, title: "Get AI Analysis", desc: "Receive instant ATS score, suggestions, and a mock interview." },
-  { num: "03", icon: Trophy, title: "Crack Placement", desc: "Walk into your dream company interview with confidence." },
+  { num: "01", icon: Upload, title: "Upload Resume", desc: "Drop in your PDF in seconds. We handle the parsing." },
+  { num: "02", icon: Sparkles, title: "Get AI Analysis", desc: "Instant ATS score, deep critique, and a tailored mock interview." },
+  { num: "03", icon: Trophy, title: "Crack Placement", desc: "Walk into your dream interview with quiet, prepared confidence." },
+];
+
+const why = [
+  {
+    icon: Zap,
+    title: "Built for Indian Placements",
+    desc: "Tuned for general Indian campus placements at top IT and product based companies.",
+  },
+  {
+    icon: ShieldCheck,
+    title: "Honest, Recruiter-Grade Feedback",
+    desc: "No fluff. Clear strengths, clear gaps, and the keywords you're missing.",
+  },
+  {
+    icon: Globe2,
+    title: "Free to Get Started",
+    desc: "Run your first resume analysis and mock interview at zero cost.",
+  },
 ];
 
 const testimonials = [
@@ -67,7 +87,7 @@ const testimonials = [
     name: "Aarav Sharma",
     college: "IIT Delhi",
     quote:
-      "PlaceAI's ATS score feedback transformed my resume. Got shortlisted at top IT companies in the same week.",
+      "PlaceAI's ATS feedback transformed my resume. Got shortlisted at top IT companies in the same week.",
   },
   {
     name: "Priya Iyer",
@@ -83,19 +103,34 @@ const testimonials = [
   },
 ];
 
+const typingPhrases = ["Analyze Resume...", "Practice Interview...", "Get Placed..."];
+
 const EASE = [0.22, 1, 0.36, 1] as const;
 
 function LandingPage() {
   return (
-    <div className="min-h-screen bg-background overflow-x-hidden">
+    <div className="min-h-screen bg-[#0a0f1e] text-white overflow-x-hidden antialiased selection:bg-blue-500/30">
+      <ScrollProgress />
       <Nav />
       <Hero />
-      <Stats />
       <Features />
       <HowItWorks />
+      <Why />
       <Testimonials />
+      <CTA />
       <Footer />
     </div>
+  );
+}
+
+function ScrollProgress() {
+  const { scrollYProgress } = useScroll();
+  const scaleX = useSpring(scrollYProgress, { stiffness: 120, damping: 24, mass: 0.2 });
+  return (
+    <motion.div
+      style={{ scaleX }}
+      className="fixed top-0 left-0 right-0 z-[60] h-[3px] origin-left bg-gradient-to-r from-blue-500 via-violet-500 to-fuchsia-500"
+    />
   );
 }
 
@@ -103,6 +138,15 @@ function Nav() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const name = getDisplayName(user);
+  const [scrolled, setScrolled] = useState(false);
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 24);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   const onLogout = async () => {
     await supabase.auth.signOut();
@@ -111,196 +155,293 @@ function Nav() {
   };
 
   return (
-    <header className="absolute top-0 left-0 right-0 z-20">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-5">
-        <Link to="/" className="flex items-center gap-2">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/15 backdrop-blur-sm text-white ring-1 ring-white/20">
+    <header
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
+        scrolled
+          ? "glass-strong py-3"
+          : "bg-transparent py-5"
+      }`}
+    >
+      <div className="mx-auto flex max-w-6xl items-center justify-between px-4">
+        <Link to="/" className="flex items-center gap-2 group">
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-violet-600 text-white shadow-lg shadow-blue-500/30 group-hover:shadow-blue-500/50 transition-shadow">
             <GraduationCap className="h-5 w-5" />
           </div>
-          <span className="text-xl font-bold text-white">PlaceAI</span>
+          <span className="text-xl font-bold tracking-tight">PlaceAI</span>
         </Link>
-        <div className="flex items-center gap-2">
+
+        <nav className="hidden md:flex items-center gap-8 text-sm text-white/70">
+          <a href="#features" className="hover:text-white transition-colors">Features</a>
+          <a href="#how" className="hover:text-white transition-colors">How it works</a>
+          <a href="#why" className="hover:text-white transition-colors">Why PlaceAI</a>
+        </nav>
+
+        <div className="hidden md:flex items-center gap-2">
           {user ? (
             <>
-              <span className="hidden sm:inline text-sm text-white/90 mr-1">Hi, {name}</span>
+              <span className="text-sm text-white/70 mr-1">Hi, {name}</span>
               <Link to="/dashboard">
-                <Button className="bg-white text-primary hover:bg-white/90">Dashboard</Button>
+                <Button className="bg-gradient-to-r from-blue-500 to-violet-600 hover:from-blue-400 hover:to-violet-500 text-white border-0 shadow-lg shadow-blue-500/25">
+                  Dashboard
+                </Button>
               </Link>
               <Button
                 variant="ghost"
                 onClick={onLogout}
-                className="text-white hover:bg-white/10 hover:text-white"
+                className="text-white/80 hover:bg-white/10 hover:text-white"
               >
-                <LogOut className="h-4 w-4 sm:mr-2" />
-                <span className="hidden sm:inline">Logout</span>
+                <LogOut className="h-4 w-4" />
               </Button>
             </>
           ) : (
             <>
               <Link to="/login">
-                <Button variant="ghost" className="text-white hover:bg-white/10 hover:text-white">
+                <Button variant="ghost" className="text-white/80 hover:bg-white/10 hover:text-white">
                   Login
                 </Button>
               </Link>
               <Link to="/signup">
-                <Button className="bg-white text-primary hover:bg-white/90">Get Started Free</Button>
+                <Button className="bg-gradient-to-r from-blue-500 to-violet-600 hover:from-blue-400 hover:to-violet-500 text-white border-0 shadow-lg shadow-blue-500/25 hover:shadow-violet-500/40 transition-shadow">
+                  Get Started Free
+                </Button>
               </Link>
             </>
           )}
         </div>
+
+        <button
+          className="md:hidden text-white p-2 rounded-lg hover:bg-white/10 transition-colors"
+          onClick={() => setOpen((v) => !v)}
+          aria-label="Toggle menu"
+        >
+          {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+        </button>
       </div>
+
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, y: -10, height: 0 }}
+            animate={{ opacity: 1, y: 0, height: "auto" }}
+            exit={{ opacity: 0, y: -10, height: 0 }}
+            transition={{ duration: 0.3, ease: EASE }}
+            className="md:hidden overflow-hidden glass-strong border-t border-white/10"
+          >
+            <div className="mx-auto max-w-6xl px-4 py-4 flex flex-col gap-3 text-white/80">
+              <a href="#features" onClick={() => setOpen(false)} className="py-2">Features</a>
+              <a href="#how" onClick={() => setOpen(false)} className="py-2">How it works</a>
+              <a href="#why" onClick={() => setOpen(false)} className="py-2">Why PlaceAI</a>
+              <div className="flex gap-2 pt-2 border-t border-white/10">
+                {user ? (
+                  <Link to="/dashboard" className="flex-1" onClick={() => setOpen(false)}>
+                    <Button className="w-full bg-gradient-to-r from-blue-500 to-violet-600 text-white border-0">Dashboard</Button>
+                  </Link>
+                ) : (
+                  <>
+                    <Link to="/login" className="flex-1" onClick={() => setOpen(false)}>
+                      <Button variant="ghost" className="w-full text-white hover:bg-white/10">Login</Button>
+                    </Link>
+                    <Link to="/signup" className="flex-1" onClick={() => setOpen(false)}>
+                      <Button className="w-full bg-gradient-to-r from-blue-500 to-violet-600 text-white border-0">Get Started</Button>
+                    </Link>
+                  </>
+                )}
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </header>
+  );
+}
+
+function Typewriter() {
+  const [pIdx, setPIdx] = useState(0);
+  const [text, setText] = useState("");
+  const [deleting, setDeleting] = useState(false);
+
+  useEffect(() => {
+    const current = typingPhrases[pIdx];
+    const tick = deleting ? 40 : 80;
+    const pause = deleting ? 400 : 1400;
+
+    if (!deleting && text === current) {
+      const t = setTimeout(() => setDeleting(true), pause);
+      return () => clearTimeout(t);
+    }
+    if (deleting && text === "") {
+      setDeleting(false);
+      setPIdx((i) => (i + 1) % typingPhrases.length);
+      return;
+    }
+    const t = setTimeout(() => {
+      setText(deleting ? current.slice(0, text.length - 1) : current.slice(0, text.length + 1));
+    }, tick);
+    return () => clearTimeout(t);
+  }, [text, deleting, pIdx]);
+
+  return (
+    <span
+      className="caret-blink inline-block font-mono text-base sm:text-lg text-blue-300/90"
+      suppressHydrationWarning
+    >
+      {text}
+    </span>
   );
 }
 
 function Hero() {
   const reduce = useReducedMotion();
-  const initialX = reduce ? 0 : 40;
+  const initialX = reduce ? 0 : 30;
+
   return (
-    <section
-      className="relative overflow-hidden pt-28 pb-20 sm:pt-36 sm:pb-28"
-      style={{ background: "var(--gradient-hero)" }}
-    >
-      {/* Floating background blobs */}
-      <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute -top-24 -left-24 h-80 w-80 rounded-full bg-indigo-400/30 blur-3xl animate-float-slow" />
-        <div className="absolute top-40 -right-20 h-96 w-96 rounded-full bg-blue-400/20 blur-3xl animate-float-medium" />
-        <div className="absolute bottom-0 left-1/3 h-72 w-72 rounded-full bg-purple-500/20 blur-3xl animate-pulse-soft" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,rgba(255,255,255,0.08),transparent_60%)]" />
+    <section className="relative min-h-screen flex items-center overflow-hidden pt-32 pb-20">
+      {/* Animated gradient base */}
+      <div className="absolute inset-0 hero-gradient-anim animate-gradient-shift" />
+      {/* Mesh overlay */}
+      <div className="absolute inset-0 mesh-bg opacity-90" />
+      {/* Grid pattern */}
+      <div className="absolute inset-0 grid-pattern opacity-40 [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_75%)]" />
+
+      {/* Floating orbs */}
+      <div aria-hidden className="pointer-events-none absolute inset-0">
+        <div className="absolute -top-32 -left-20 h-[28rem] w-[28rem] rounded-full bg-blue-500/30 blur-[120px] animate-orb-a" />
+        <div className="absolute top-1/3 -right-20 h-[26rem] w-[26rem] rounded-full bg-violet-600/30 blur-[120px] animate-orb-b" />
+        <div className="absolute bottom-0 left-1/3 h-72 w-72 rounded-full bg-fuchsia-500/20 blur-[100px] animate-orb-c" />
       </div>
 
-      <div className="relative mx-auto max-w-6xl px-4">
-        <div className="grid items-center gap-12 lg:grid-cols-2">
-          {/* Copy */}
-          <div className="text-white">
-            <motion.span
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, ease: EASE }}
-              className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-medium text-white/90 ring-1 ring-white/20 backdrop-blur-sm"
-            >
-              <Sparkles className="h-3.5 w-3.5" />
-              Made for Indian Engineering Students
-            </motion.span>
-            <motion.h1
-              initial={{ opacity: 0, x: -initialX }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6, ease: EASE, delay: 0.1 }}
-              className="mt-5 text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.05]"
-            >
-              Crack Your Dream{" "}
-              <span className="bg-gradient-to-r from-white via-blue-200 to-purple-200 bg-clip-text text-transparent">
-                Placement
-              </span>
-            </motion.h1>
-            <motion.p
-              initial={{ opacity: 0, x: initialX }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6, ease: EASE, delay: 0.3 }}
-              className="mt-6 text-lg sm:text-xl text-white/80 max-w-xl"
-            >
-              AI-powered resume review and mock interviews for Indian campus placements at top IT and product based companies.
-            </motion.p>
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, ease: EASE, delay: 0.5 }}
-              className="mt-10 flex flex-wrap gap-3"
-            >
-              <Link to="/signup">
-                <Button size="lg" className="h-12 px-7 bg-white text-primary hover:bg-white/90 shadow-lg">
-                  Get Started Free
-                  <ArrowRight className="ml-1 h-4 w-4" />
-                </Button>
-              </Link>
+      <div className="relative mx-auto max-w-6xl px-4 w-full">
+        <div className="max-w-3xl">
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: EASE }}
+            className="inline-flex items-center gap-2 rounded-full glass px-3 py-1 text-xs font-medium text-white/85"
+          >
+            <Sparkles className="h-3.5 w-3.5 text-blue-300" />
+            Made for Indian Engineering Students
+          </motion.div>
+
+          <motion.h1
+            initial={{ opacity: 0, x: -initialX }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.7, ease: EASE, delay: 0.1 }}
+            className="mt-6 text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.02]"
+          >
+            <span className="block text-white">Crack Your Dream</span>
+            <span className="block text-gradient-bp">Placement with AI</span>
+          </motion.h1>
+
+          <motion.p
+            initial={{ opacity: 0, x: initialX }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.7, ease: EASE, delay: 0.25 }}
+            className="mt-6 text-lg sm:text-xl text-white/65 max-w-2xl leading-relaxed"
+          >
+            AI-powered resume review and mock interviews for Indian campus placements at top IT and product based companies.
+          </motion.p>
+
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: EASE, delay: 0.4 }}
+            className="mt-6 flex items-center gap-2 text-white/60"
+          >
+            <span className="text-white/40 text-sm">PlaceAI helps you</span>
+            <Typewriter />
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: EASE, delay: 0.55 }}
+            className="mt-10 flex flex-wrap items-center gap-4 relative"
+          >
+            <Link to="/signup">
+              <Button
+                size="lg"
+                className="h-13 px-7 text-base bg-gradient-to-r from-blue-500 to-violet-600 hover:from-blue-400 hover:to-violet-500 text-white border-0 shadow-[0_10px_40px_-10px_rgba(59,130,246,0.6)] hover:shadow-[0_15px_50px_-10px_rgba(139,92,246,0.7)] transition-all hover:-translate-y-0.5"
+              >
+                Get Started Free
+                <ArrowRight className="ml-1.5 h-4 w-4" />
+              </Button>
+            </Link>
+            <a href="#how">
               <Button
                 size="lg"
                 variant="outline"
-                className="h-12 px-7 bg-transparent border-white/40 text-white hover:bg-white/10 hover:text-white"
+                className="h-13 px-7 text-base bg-transparent border border-white/25 text-white hover:bg-white/10 hover:text-white hover:border-white/40 transition-all"
               >
-                <Play className="mr-1 h-4 w-4" />
-                Watch Demo
+                See How It Works
               </Button>
-            </motion.div>
-          </div>
+            </a>
 
-          {/* Mockup */}
-          <motion.div
-            initial={{ opacity: 0, x: initialX * 1.5 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, ease: EASE, delay: 0.2 }}
-            className="relative"
-          >
-            <div className="absolute -inset-4 rounded-3xl bg-gradient-to-tr from-indigo-500/30 to-blue-500/30 blur-2xl" />
-            <img
-              src={dashboardMockup}
-              alt="PlaceAI dashboard preview showing resume review with ATS score"
-              width={1280}
-              height={896}
-              className="relative rounded-2xl shadow-2xl ring-1 ring-white/10"
-            />
+            {/* Floating badge */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              transition={{ duration: 0.5, ease: EASE, delay: 0.9 }}
+              className="glass rounded-full px-3.5 py-1.5 text-xs font-medium text-white/90 flex items-center gap-1.5 shadow-[0_8px_30px_-8px_rgba(139,92,246,0.5)]"
+            >
+              <span>✨</span> 100% Free to Start
+            </motion.div>
           </motion.div>
         </div>
       </div>
+
+      {/* Bottom fade */}
+      <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-b from-transparent to-[#0a0f1e]" />
     </section>
   );
 }
 
-function Stats() {
+function SectionHeader({ eyebrow, title, subtitle }: { eyebrow: string; title: string; subtitle: string }) {
   return (
-    <section className="bg-background py-14 border-b border-border">
-      <div className="mx-auto max-w-6xl px-4">
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
-          {highlights.map((h, i) => (
-            <motion.div
-              key={h.label}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.4 }}
-              transition={{ duration: 0.6, ease: EASE, delay: i * 0.12 }}
-              whileHover={{ y: -4 }}
-              className="flex items-center justify-center gap-2.5 text-center rounded-xl border border-border bg-card/60 px-4 py-5 transition-shadow duration-300 hover:shadow-md"
-            >
-              <h.icon className="h-5 w-5 text-primary shrink-0" />
-              <span className="text-sm font-medium text-foreground">{h.label}</span>
-            </motion.div>
-          ))}
-        </div>
-      </div>
-    </section>
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.5 }}
+      transition={{ duration: 0.6, ease: EASE }}
+      className="text-center max-w-2xl mx-auto"
+    >
+      <div className="text-xs font-semibold tracking-[0.2em] uppercase text-blue-400/90">{eyebrow}</div>
+      <h2 className="mt-3 text-3xl sm:text-5xl font-bold tracking-tight">
+        <span className="text-white">{title}</span>
+      </h2>
+      <p className="mt-4 text-white/60 text-lg leading-relaxed">{subtitle}</p>
+    </motion.div>
   );
 }
 
 function Features() {
   return (
-    <section id="features" className="py-20 sm:py-28 bg-secondary/40">
-      <div className="mx-auto max-w-6xl px-4">
+    <section id="features" className="relative py-24 sm:py-32 bg-[#0a0f1e]">
+      <div className="absolute inset-0 grid-pattern opacity-30 [mask-image:radial-gradient(ellipse_at_center,black_20%,transparent_70%)]" />
+      <div className="relative mx-auto max-w-6xl px-4">
         <SectionHeader
           eyebrow="Features"
           title="Everything you need to land the offer"
           subtitle="Built specifically for Indian engineering campus placements."
         />
-        <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {features.map((f, i) => {
             const fromLeft = i % 2 === 0;
             return (
               <motion.div
                 key={f.title}
-                initial={{ opacity: 0, x: fromLeft ? -50 : 50 }}
+                initial={{ opacity: 0, x: fromLeft ? -40 : 40 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true, amount: 0.3 }}
-                transition={{ duration: 0.6, ease: EASE, delay: i * 0.1 }}
+                transition={{ duration: 0.6, ease: EASE, delay: i * 0.08 }}
                 whileHover={{ y: -6 }}
-                className="group relative rounded-2xl border border-border bg-card p-6 transition-shadow duration-300 hover:shadow-[var(--shadow-glow)] hover:border-primary/30"
+                className="group relative rounded-2xl glass p-6 transition-all duration-300 hover:border-blue-400/40 hover:bg-white/[0.06] hover:shadow-[0_0_40px_-10px_rgba(59,130,246,0.5)]"
               >
-                <div
-                  className="flex h-12 w-12 items-center justify-center rounded-xl text-white shadow-md"
-                  style={{ background: "var(--gradient-icon)" }}
-                >
+                <div className="absolute -inset-px rounded-2xl bg-gradient-to-br from-blue-500/0 via-violet-500/0 to-blue-500/0 group-hover:from-blue-500/20 group-hover:via-violet-500/10 group-hover:to-blue-500/20 opacity-0 group-hover:opacity-100 transition-opacity blur-md -z-10" />
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-violet-600 text-white shadow-lg shadow-blue-500/30">
                   <f.icon className="h-5 w-5" />
                 </div>
-                <h3 className="mt-5 font-semibold text-foreground">{f.title}</h3>
-                <p className="mt-2 text-sm text-muted-foreground leading-relaxed">{f.desc}</p>
+                <h3 className="mt-5 font-semibold text-white text-lg">{f.title}</h3>
+                <p className="mt-2 text-sm text-white/60 leading-relaxed">{f.desc}</p>
               </motion.div>
             );
           })}
@@ -312,17 +453,18 @@ function Features() {
 
 function HowItWorks() {
   return (
-    <section className="py-20 sm:py-28">
-      <div className="mx-auto max-w-6xl px-4">
+    <section id="how" className="relative py-24 sm:py-32">
+      <div className="absolute inset-0 mesh-bg opacity-50" />
+      <div className="relative mx-auto max-w-6xl px-4">
         <SectionHeader
           eyebrow="How it works"
-          title="Three simple steps to placement-ready"
-          subtitle="From upload to offer letter — we've got every step covered."
+          title="Three steps to placement-ready"
+          subtitle="From upload to offer letter — we've covered every step."
         />
-        <div className="relative mt-16">
-          {/* Connector line */}
+        <div className="relative mt-20">
+          {/* Glowing connector */}
           <div className="absolute top-10 left-0 right-0 hidden md:block">
-            <div className="mx-auto max-w-4xl h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
+            <div className="mx-auto max-w-4xl h-px bg-gradient-to-r from-transparent via-blue-500/60 to-transparent shadow-[0_0_20px_rgba(59,130,246,0.5)]" />
           </div>
           <div className="relative grid gap-10 md:grid-cols-3">
             {steps.map((s, i) => (
@@ -331,23 +473,56 @@ function HowItWorks() {
                 initial={{ opacity: 0, y: 40 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, amount: 0.4 }}
-                transition={{ duration: 0.6, ease: EASE, delay: i * 0.2 }}
-                className="relative text-center"
+                transition={{ duration: 0.6, ease: EASE, delay: i * 0.18 }}
+                className="relative group"
               >
-                <div
-                  className="mx-auto flex h-20 w-20 items-center justify-center rounded-full text-white shadow-[var(--shadow-glow)] ring-8 ring-background"
-                  style={{ background: "var(--gradient-icon)" }}
-                >
-                  <s.icon className="h-7 w-7" />
+                <div className="glass rounded-2xl p-8 text-center transition-all duration-300 group-hover:border-violet-400/40 group-hover:shadow-[0_0_50px_-10px_rgba(139,92,246,0.5)]">
+                  <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-violet-600 text-white shadow-[0_0_40px_-5px_rgba(99,102,241,0.7)] ring-8 ring-[#0a0f1e]">
+                    <s.icon className="h-7 w-7" />
+                  </div>
+                  <div className="mt-5 text-5xl font-extrabold text-gradient-bp leading-none">
+                    {s.num}
+                  </div>
+                  <h3 className="mt-3 text-xl font-bold text-white">{s.title}</h3>
+                  <p className="mt-2 text-sm text-white/60 leading-relaxed">{s.desc}</p>
                 </div>
-                <div className="mt-5 text-xs font-semibold tracking-widest text-primary">
-                  STEP {s.num}
-                </div>
-                <h3 className="mt-1 text-xl font-bold text-foreground">{s.title}</h3>
-                <p className="mt-2 text-sm text-muted-foreground max-w-xs mx-auto">{s.desc}</p>
               </motion.div>
             ))}
           </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Why() {
+  return (
+    <section id="why" className="relative py-24 sm:py-32 bg-[#0a0f1e]">
+      <div className="absolute inset-0 dot-pattern opacity-50 [mask-image:radial-gradient(ellipse_at_center,black_25%,transparent_75%)]" />
+      <div className="relative mx-auto max-w-6xl px-4">
+        <SectionHeader
+          eyebrow="Why PlaceAI"
+          title="Designed for outcomes, not noise"
+          subtitle="Built by people who've sat on both sides of the campus interview table."
+        />
+        <div className="mt-16 grid gap-6 md:grid-cols-3">
+          {why.map((w, i) => (
+            <motion.div
+              key={w.title}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.3 }}
+              transition={{ duration: 0.6, ease: EASE, delay: i * 0.12 }}
+              whileHover={{ y: -6 }}
+              className="group relative rounded-2xl glass p-7 transition-all duration-300 hover:border-blue-400/50 hover:shadow-[0_0_50px_-10px_rgba(59,130,246,0.5)]"
+            >
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-violet-600 text-white shadow-lg shadow-violet-500/30">
+                <w.icon className="h-5 w-5" />
+              </div>
+              <h3 className="mt-5 text-lg font-semibold text-white">{w.title}</h3>
+              <p className="mt-2 text-sm text-white/60 leading-relaxed">{w.desc}</p>
+            </motion.div>
+          ))}
         </div>
       </div>
     </section>
@@ -376,8 +551,9 @@ function Testimonials() {
   const t = testimonials[index];
 
   return (
-    <section className="py-20 sm:py-28 bg-secondary/40">
-      <div className="mx-auto max-w-6xl px-4">
+    <section className="relative py-24 sm:py-32">
+      <div className="absolute inset-0 mesh-bg opacity-60" />
+      <div className="relative mx-auto max-w-6xl px-4">
         <SectionHeader
           eyebrow="Testimonials"
           title="Loved by students across India"
@@ -396,29 +572,25 @@ function Testimonials() {
             <AnimatePresence mode="wait" custom={direction}>
               <motion.div
                 key={index}
-                custom={direction}
                 initial={{ opacity: 0, x: direction * 60 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: direction * -60 }}
                 transition={{ duration: 0.6, ease: EASE }}
-                className="rounded-2xl border border-border bg-card p-7 sm:p-10"
+                className="rounded-2xl glass p-7 sm:p-10 shadow-[0_0_60px_-20px_rgba(99,102,241,0.5)]"
               >
                 <div className="flex gap-0.5 text-yellow-400">
                   {Array.from({ length: 5 }).map((_, idx) => (
                     <Star key={idx} className="h-4 w-4 fill-current" />
                   ))}
                 </div>
-                <p className="mt-4 text-lg text-foreground/90 leading-relaxed">"{t.quote}"</p>
+                <p className="mt-4 text-lg text-white/90 leading-relaxed">"{t.quote}"</p>
                 <div className="mt-6 flex items-center gap-3">
-                  <div
-                    className="flex h-10 w-10 items-center justify-center rounded-full text-white font-semibold"
-                    style={{ background: "var(--gradient-icon)" }}
-                  >
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-violet-600 text-white font-semibold">
                     {t.name.charAt(0)}
                   </div>
                   <div>
-                    <div className="text-sm font-semibold text-foreground">{t.name}</div>
-                    <div className="text-xs text-muted-foreground">{t.college}</div>
+                    <div className="text-sm font-semibold text-white">{t.name}</div>
+                    <div className="text-xs text-white/50">{t.college}</div>
                   </div>
                 </div>
               </motion.div>
@@ -429,7 +601,7 @@ function Testimonials() {
             type="button"
             aria-label="Previous testimonial"
             onClick={() => go(index - 1)}
-            className="absolute -left-2 sm:-left-12 top-1/2 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-full bg-card border border-border text-foreground shadow-sm hover:bg-primary hover:text-primary-foreground transition-colors"
+            className="absolute -left-2 sm:-left-14 top-1/2 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-full glass text-white hover:bg-white/15 transition-colors"
           >
             <ChevronLeft className="h-5 w-5" />
           </button>
@@ -437,7 +609,7 @@ function Testimonials() {
             type="button"
             aria-label="Next testimonial"
             onClick={() => go(index + 1)}
-            className="absolute -right-2 sm:-right-12 top-1/2 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-full bg-card border border-border text-foreground shadow-sm hover:bg-primary hover:text-primary-foreground transition-colors"
+            className="absolute -right-2 sm:-right-14 top-1/2 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-full glass text-white hover:bg-white/15 transition-colors"
           >
             <ChevronRight className="h-5 w-5" />
           </button>
@@ -449,7 +621,7 @@ function Testimonials() {
                 aria-label={`Go to testimonial ${i + 1}`}
                 onClick={() => go(i)}
                 className={`h-2 rounded-full transition-all duration-300 ${
-                  i === index ? "w-6 bg-primary" : "w-2 bg-border hover:bg-primary/50"
+                  i === index ? "w-6 bg-gradient-to-r from-blue-400 to-violet-500" : "w-2 bg-white/20 hover:bg-white/40"
                 }`}
               />
             ))}
@@ -460,53 +632,82 @@ function Testimonials() {
   );
 }
 
-function Footer() {
+function CTA() {
   return (
-    <footer className="border-t border-border bg-background">
-      <div className="mx-auto max-w-6xl px-4 py-12">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-          <Link to="/" className="flex items-center gap-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-              <GraduationCap className="h-5 w-5" />
-            </div>
-            <span className="text-xl font-bold text-primary">PlaceAI</span>
-          </Link>
-          <nav className="flex flex-wrap gap-6 text-sm text-muted-foreground">
-            <Link to="/" className="hover:text-primary transition-colors">Home</Link>
-            <a href="#features" className="hover:text-primary transition-colors">Features</a>
-            <a href="#pricing" className="hover:text-primary transition-colors">Pricing</a>
-            <a href="#contact" className="hover:text-primary transition-colors">Contact</a>
-          </nav>
-        </div>
-        <div className="mt-8 pt-6 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-3 text-sm text-muted-foreground">
-          <div>© {new Date().getFullYear()} PlaceAI. All rights reserved.</div>
-          <div>Made for Indian Students 🇮🇳</div>
-        </div>
+    <section className="relative py-24 sm:py-32 overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-600 via-violet-700 to-fuchsia-700 animate-gradient-shift" />
+      <div className="absolute inset-0 mesh-bg opacity-40 mix-blend-overlay" />
+      <div className="absolute inset-0 grid-pattern opacity-20" />
+      <div aria-hidden className="pointer-events-none absolute inset-0">
+        <div className="absolute -top-20 left-1/4 h-80 w-80 rounded-full bg-blue-400/30 blur-[100px] animate-orb-a" />
+        <div className="absolute -bottom-20 right-1/4 h-80 w-80 rounded-full bg-fuchsia-500/30 blur-[100px] animate-orb-b" />
       </div>
-    </footer>
+
+      <div className="relative mx-auto max-w-4xl px-4 text-center">
+        <motion.h2
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.5 }}
+          transition={{ duration: 0.7, ease: EASE }}
+          className="text-4xl sm:text-6xl font-extrabold tracking-tight text-white"
+        >
+          Ready to Get Placed?
+        </motion.h2>
+        <motion.p
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.5 }}
+          transition={{ duration: 0.7, ease: EASE, delay: 0.1 }}
+          className="mt-5 text-lg text-white/80 max-w-2xl mx-auto"
+        >
+          Join students preparing smarter for Indian campus placements at top IT and product based companies.
+        </motion.p>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.5 }}
+          transition={{ duration: 0.7, ease: EASE, delay: 0.2 }}
+          className="mt-10 flex justify-center"
+        >
+          <Link to="/signup">
+            <Button
+              size="lg"
+              className="h-14 px-9 text-base bg-white text-[#1a1244] hover:bg-white/95 border-0 shadow-[0_0_50px_-5px_rgba(255,255,255,0.7)] hover:shadow-[0_0_70px_-5px_rgba(255,255,255,0.9)] transition-all hover:-translate-y-0.5 font-semibold"
+            >
+              Get Started Free
+              <ArrowRight className="ml-1.5 h-4 w-4" />
+            </Button>
+          </Link>
+        </motion.div>
+      </div>
+    </section>
   );
 }
 
-function SectionHeader({
-  eyebrow,
-  title,
-  subtitle,
-}: {
-  eyebrow: string;
-  title: string;
-  subtitle: string;
-}) {
+function Footer() {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.6 }}
-      transition={{ duration: 0.6, ease: EASE }}
-      className="text-center max-w-2xl mx-auto"
-    >
-      <div className="text-xs font-semibold tracking-widest uppercase text-primary">{eyebrow}</div>
-      <h2 className="mt-3 text-3xl sm:text-4xl font-bold text-foreground">{title}</h2>
-      <p className="mt-3 text-muted-foreground">{subtitle}</p>
-    </motion.div>
+    <footer className="relative bg-[#070b18] border-t border-white/10">
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-blue-500/60 to-transparent shadow-[0_0_20px_rgba(59,130,246,0.4)]" />
+      <div className="mx-auto max-w-6xl px-4 py-12">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+          <Link to="/" className="flex items-center gap-2">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-violet-600 text-white shadow-lg shadow-blue-500/30">
+              <GraduationCap className="h-5 w-5" />
+            </div>
+            <span className="text-xl font-bold text-white">PlaceAI</span>
+          </Link>
+          <nav className="flex flex-wrap gap-6 text-sm text-white/60">
+            <Link to="/" className="hover:text-white transition-colors">Home</Link>
+            <a href="#features" className="hover:text-white transition-colors">Features</a>
+            <a href="#how" className="hover:text-white transition-colors">How it works</a>
+            <a href="#why" className="hover:text-white transition-colors">Why PlaceAI</a>
+          </nav>
+        </div>
+        <div className="mt-8 pt-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-3 text-sm text-white/50">
+          <div>© {new Date().getFullYear()} PlaceAI. All rights reserved.</div>
+          <div>Made with ❤️ for Indian Students 🇮🇳</div>
+        </div>
+      </div>
+    </footer>
   );
 }
