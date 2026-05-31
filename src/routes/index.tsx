@@ -12,12 +12,16 @@ import {
   Trophy,
   Star,
   LogOut,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import dashboardMockup from "@/assets/dashboard-mockup.png";
 import { useAuth, getDisplayName } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import { useEffect, useState } from "react";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -79,9 +83,11 @@ const testimonials = [
   },
 ];
 
+const EASE = [0.22, 1, 0.36, 1] as const;
+
 function LandingPage() {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background overflow-x-hidden">
       <Nav />
       <Hero />
       <Stats />
@@ -148,6 +154,8 @@ function Nav() {
 }
 
 function Hero() {
+  const reduce = useReducedMotion();
+  const initialX = reduce ? 0 : 40;
   return (
     <section
       className="relative overflow-hidden pt-28 pb-20 sm:pt-36 sm:pb-28"
@@ -164,21 +172,41 @@ function Hero() {
       <div className="relative mx-auto max-w-6xl px-4">
         <div className="grid items-center gap-12 lg:grid-cols-2">
           {/* Copy */}
-          <div className="text-white animate-fade-up">
-            <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-medium text-white/90 ring-1 ring-white/20 backdrop-blur-sm">
+          <div className="text-white">
+            <motion.span
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, ease: EASE }}
+              className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-medium text-white/90 ring-1 ring-white/20 backdrop-blur-sm"
+            >
               <Sparkles className="h-3.5 w-3.5" />
               Made for Indian Engineering Students
-            </span>
-            <h1 className="mt-5 text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.05]">
+            </motion.span>
+            <motion.h1
+              initial={{ opacity: 0, x: -initialX }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6, ease: EASE, delay: 0.1 }}
+              className="mt-5 text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.05]"
+            >
               Crack Your Dream{" "}
               <span className="bg-gradient-to-r from-white via-blue-200 to-purple-200 bg-clip-text text-transparent">
                 Placement
               </span>
-            </h1>
-            <p className="mt-6 text-lg sm:text-xl text-white/80 max-w-xl">
+            </motion.h1>
+            <motion.p
+              initial={{ opacity: 0, x: initialX }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6, ease: EASE, delay: 0.3 }}
+              className="mt-6 text-lg sm:text-xl text-white/80 max-w-xl"
+            >
               AI-powered resume review and mock interviews for Indian campus placements at top IT and product based companies.
-            </p>
-            <div className="mt-10 flex flex-wrap gap-3">
+            </motion.p>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, ease: EASE, delay: 0.5 }}
+              className="mt-10 flex flex-wrap gap-3"
+            >
               <Link to="/signup">
                 <Button size="lg" className="h-12 px-7 bg-white text-primary hover:bg-white/90 shadow-lg">
                   Get Started Free
@@ -193,11 +221,16 @@ function Hero() {
                 <Play className="mr-1 h-4 w-4" />
                 Watch Demo
               </Button>
-            </div>
+            </motion.div>
           </div>
 
           {/* Mockup */}
-          <div className="relative animate-fade-up" style={{ animationDelay: "0.15s" }}>
+          <motion.div
+            initial={{ opacity: 0, x: initialX * 1.5 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8, ease: EASE, delay: 0.2 }}
+            className="relative"
+          >
             <div className="absolute -inset-4 rounded-3xl bg-gradient-to-tr from-indigo-500/30 to-blue-500/30 blur-2xl" />
             <img
               src={dashboardMockup}
@@ -206,7 +239,7 @@ function Hero() {
               height={896}
               className="relative rounded-2xl shadow-2xl ring-1 ring-white/10"
             />
-          </div>
+          </motion.div>
         </div>
       </div>
     </section>
@@ -218,14 +251,19 @@ function Stats() {
     <section className="bg-background py-14 border-b border-border">
       <div className="mx-auto max-w-6xl px-4">
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
-          {highlights.map((h) => (
-            <div
+          {highlights.map((h, i) => (
+            <motion.div
               key={h.label}
-              className="flex items-center justify-center gap-2.5 text-center rounded-xl border border-border bg-card/60 px-4 py-5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-sm"
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.4 }}
+              transition={{ duration: 0.6, ease: EASE, delay: i * 0.12 }}
+              whileHover={{ y: -4 }}
+              className="flex items-center justify-center gap-2.5 text-center rounded-xl border border-border bg-card/60 px-4 py-5 transition-shadow duration-300 hover:shadow-md"
             >
               <h.icon className="h-5 w-5 text-primary shrink-0" />
               <span className="text-sm font-medium text-foreground">{h.label}</span>
-            </div>
+            </motion.div>
           ))}
         </div>
       </div>
@@ -235,7 +273,7 @@ function Stats() {
 
 function Features() {
   return (
-    <section className="py-20 sm:py-28 bg-secondary/40">
+    <section id="features" className="py-20 sm:py-28 bg-secondary/40">
       <div className="mx-auto max-w-6xl px-4">
         <SectionHeader
           eyebrow="Features"
@@ -243,22 +281,29 @@ function Features() {
           subtitle="Built specifically for Indian engineering campus placements."
         />
         <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {features.map((f, i) => (
-            <div
-              key={f.title}
-              className="group relative rounded-2xl border border-border bg-card p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-[var(--shadow-glow)] hover:border-primary/30 animate-fade-up"
-              style={{ animationDelay: `${i * 80}ms` }}
-            >
-              <div
-                className="flex h-12 w-12 items-center justify-center rounded-xl text-white shadow-md"
-                style={{ background: "var(--gradient-icon)" }}
+          {features.map((f, i) => {
+            const fromLeft = i % 2 === 0;
+            return (
+              <motion.div
+                key={f.title}
+                initial={{ opacity: 0, x: fromLeft ? -50 : 50 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true, amount: 0.3 }}
+                transition={{ duration: 0.6, ease: EASE, delay: i * 0.1 }}
+                whileHover={{ y: -6 }}
+                className="group relative rounded-2xl border border-border bg-card p-6 transition-shadow duration-300 hover:shadow-[var(--shadow-glow)] hover:border-primary/30"
               >
-                <f.icon className="h-5 w-5" />
-              </div>
-              <h3 className="mt-5 font-semibold text-foreground">{f.title}</h3>
-              <p className="mt-2 text-sm text-muted-foreground leading-relaxed">{f.desc}</p>
-            </div>
-          ))}
+                <div
+                  className="flex h-12 w-12 items-center justify-center rounded-xl text-white shadow-md"
+                  style={{ background: "var(--gradient-icon)" }}
+                >
+                  <f.icon className="h-5 w-5" />
+                </div>
+                <h3 className="mt-5 font-semibold text-foreground">{f.title}</h3>
+                <p className="mt-2 text-sm text-muted-foreground leading-relaxed">{f.desc}</p>
+              </motion.div>
+            );
+          })}
         </div>
       </div>
     </section>
@@ -281,10 +326,13 @@ function HowItWorks() {
           </div>
           <div className="relative grid gap-10 md:grid-cols-3">
             {steps.map((s, i) => (
-              <div
+              <motion.div
                 key={s.num}
-                className="relative text-center animate-fade-up"
-                style={{ animationDelay: `${i * 120}ms` }}
+                initial={{ opacity: 0, y: 40 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.4 }}
+                transition={{ duration: 0.6, ease: EASE, delay: i * 0.2 }}
+                className="relative text-center"
               >
                 <div
                   className="mx-auto flex h-20 w-20 items-center justify-center rounded-full text-white shadow-[var(--shadow-glow)] ring-8 ring-background"
@@ -297,7 +345,7 @@ function HowItWorks() {
                 </div>
                 <h3 className="mt-1 text-xl font-bold text-foreground">{s.title}</h3>
                 <p className="mt-2 text-sm text-muted-foreground max-w-xs mx-auto">{s.desc}</p>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
@@ -307,6 +355,26 @@ function HowItWorks() {
 }
 
 function Testimonials() {
+  const [index, setIndex] = useState(0);
+  const [direction, setDirection] = useState(1);
+  const [paused, setPaused] = useState(false);
+
+  const go = (next: number) => {
+    setDirection(next > index ? 1 : -1);
+    setIndex((next + testimonials.length) % testimonials.length);
+  };
+
+  useEffect(() => {
+    if (paused) return;
+    const t = setInterval(() => {
+      setDirection(1);
+      setIndex((i) => (i + 1) % testimonials.length);
+    }, 3000);
+    return () => clearInterval(t);
+  }, [paused]);
+
+  const t = testimonials[index];
+
   return (
     <section className="py-20 sm:py-28 bg-secondary/40">
       <div className="mx-auto max-w-6xl px-4">
@@ -315,34 +383,78 @@ function Testimonials() {
           title="Loved by students across India"
           subtitle="Real stories from students who cracked their dream placements."
         />
-        <div className="mt-14 grid gap-6 md:grid-cols-3">
-          {testimonials.map((t, i) => (
-            <div
-              key={t.name}
-              className="rounded-2xl border border-border bg-card p-7 transition-all duration-300 hover:-translate-y-1 hover:shadow-[var(--shadow-elegant)] animate-fade-up"
-              style={{ animationDelay: `${i * 100}ms` }}
-            >
-              <div className="flex gap-0.5 text-yellow-400">
-                {Array.from({ length: 5 }).map((_, idx) => (
-                  <Star key={idx} className="h-4 w-4 fill-current" />
-                ))}
-              </div>
-              <p className="mt-4 text-foreground/90 leading-relaxed">"{t.quote}"</p>
-              <div className="mt-6 flex items-center gap-3">
-                <div
-                  className="flex h-10 w-10 items-center justify-center rounded-full text-white font-semibold"
-                  style={{ background: "var(--gradient-icon)" }}
-                >
-                  {t.name.charAt(0)}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.3 }}
+          transition={{ duration: 0.6, ease: EASE }}
+          className="relative mt-14 mx-auto max-w-2xl"
+          onMouseEnter={() => setPaused(true)}
+          onMouseLeave={() => setPaused(false)}
+        >
+          <div className="relative overflow-hidden rounded-2xl">
+            <AnimatePresence mode="wait" custom={direction}>
+              <motion.div
+                key={index}
+                custom={direction}
+                initial={{ opacity: 0, x: direction * 60 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: direction * -60 }}
+                transition={{ duration: 0.6, ease: EASE }}
+                className="rounded-2xl border border-border bg-card p-7 sm:p-10"
+              >
+                <div className="flex gap-0.5 text-yellow-400">
+                  {Array.from({ length: 5 }).map((_, idx) => (
+                    <Star key={idx} className="h-4 w-4 fill-current" />
+                  ))}
                 </div>
-                <div>
-                  <div className="text-sm font-semibold text-foreground">{t.name}</div>
-                  <div className="text-xs text-muted-foreground">{t.college}</div>
+                <p className="mt-4 text-lg text-foreground/90 leading-relaxed">"{t.quote}"</p>
+                <div className="mt-6 flex items-center gap-3">
+                  <div
+                    className="flex h-10 w-10 items-center justify-center rounded-full text-white font-semibold"
+                    style={{ background: "var(--gradient-icon)" }}
+                  >
+                    {t.name.charAt(0)}
+                  </div>
+                  <div>
+                    <div className="text-sm font-semibold text-foreground">{t.name}</div>
+                    <div className="text-xs text-muted-foreground">{t.college}</div>
+                  </div>
                 </div>
-              </div>
-            </div>
-          ))}
-        </div>
+              </motion.div>
+            </AnimatePresence>
+          </div>
+
+          <button
+            type="button"
+            aria-label="Previous testimonial"
+            onClick={() => go(index - 1)}
+            className="absolute -left-2 sm:-left-12 top-1/2 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-full bg-card border border-border text-foreground shadow-sm hover:bg-primary hover:text-primary-foreground transition-colors"
+          >
+            <ChevronLeft className="h-5 w-5" />
+          </button>
+          <button
+            type="button"
+            aria-label="Next testimonial"
+            onClick={() => go(index + 1)}
+            className="absolute -right-2 sm:-right-12 top-1/2 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-full bg-card border border-border text-foreground shadow-sm hover:bg-primary hover:text-primary-foreground transition-colors"
+          >
+            <ChevronRight className="h-5 w-5" />
+          </button>
+
+          <div className="mt-6 flex justify-center gap-2">
+            {testimonials.map((_, i) => (
+              <button
+                key={i}
+                aria-label={`Go to testimonial ${i + 1}`}
+                onClick={() => go(i)}
+                className={`h-2 rounded-full transition-all duration-300 ${
+                  i === index ? "w-6 bg-primary" : "w-2 bg-border hover:bg-primary/50"
+                }`}
+              />
+            ))}
+          </div>
+        </motion.div>
       </div>
     </section>
   );
@@ -385,10 +497,16 @@ function SectionHeader({
   subtitle: string;
 }) {
   return (
-    <div className="text-center max-w-2xl mx-auto">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.6 }}
+      transition={{ duration: 0.6, ease: EASE }}
+      className="text-center max-w-2xl mx-auto"
+    >
       <div className="text-xs font-semibold tracking-widest uppercase text-primary">{eyebrow}</div>
       <h2 className="mt-3 text-3xl sm:text-4xl font-bold text-foreground">{title}</h2>
       <p className="mt-3 text-muted-foreground">{subtitle}</p>
-    </div>
+    </motion.div>
   );
 }
