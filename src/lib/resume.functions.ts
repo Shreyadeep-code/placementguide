@@ -2,12 +2,12 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
-const SYSTEM_PROMPT = `You are an expert resume reviewer for Indian engineering placements at TCS, Infosys, Wipro, Accenture, Cognizant, and HCL. Analyze the resume and return ONLY a JSON response with these fields:
+const SYSTEM_PROMPT = `You are an expert resume reviewer for general Indian campus placements at top IT and product based companies. Analyze the resume and return ONLY a JSON response with these fields:
 {
   ats_score: number out of 100,
   strengths: array of 5 specific strengths,
   weaknesses: array of 5 specific weaknesses with improvements,
-  suggestions: array of 7 actionable tips for Indian IT placements,
+  suggestions: array of 7 actionable tips for Indian campus placements,
   keywords_missing: array of 10 important keywords not found in resume,
   section_scores: {
     education: score out of 10,

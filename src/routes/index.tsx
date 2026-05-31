@@ -26,7 +26,7 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "AI-powered resume review and mock interviews for TCS, Infosys, Wipro, Accenture. Built for Indian engineering students.",
+          "AI-powered resume review and mock interviews for Indian campus placements at top IT and product based companies. Built for Indian engineering students.",
       },
       { property: "og:title", content: "PlaceAI — Crack Your Dream Placement" },
       {
@@ -41,7 +41,7 @@ export const Route = createFileRoute("/")({
 const highlights = [
   { icon: Sparkles, label: "AI Powered Analysis" },
   { icon: Star, label: "Made for Indian Students \u{1F1EE}\u{1F1F3}" },
-  { icon: GraduationCap, label: "TCS, Infosys, Wipro Focused" },
+  { icon: GraduationCap, label: "Top IT Companies Focused" },
   { icon: ArrowRight, label: "Free to Get Started" },
 ];
 
@@ -63,13 +63,13 @@ const testimonials = [
     name: "Aarav Sharma",
     college: "IIT Delhi",
     quote:
-      "PlaceAI's ATS score feedback transformed my resume. Got shortlisted at TCS Digital and Infosys in the same week.",
+      "PlaceAI's ATS score feedback transformed my resume. Got shortlisted at top IT companies in the same week.",
   },
   {
     name: "Priya Iyer",
     college: "NIT Trichy",
     quote:
-      "The mock interviews were terrifyingly realistic. By placement day, I felt 10x more prepared. Cracked Accenture!",
+      "The mock interviews were terrifyingly realistic. By placement day, I felt 10x more prepared. Cracked my dream company!",
   },
   {
     name: "Rohan Verma",
@@ -176,7 +176,7 @@ function Hero() {
               </span>
             </h1>
             <p className="mt-6 text-lg sm:text-xl text-white/80 max-w-xl">
-              AI-powered resume review and mock interviews for TCS, Infosys, Wipro, Accenture.
+              AI-powered resume review and mock interviews for Indian campus placements at top IT and product based companies.
             </p>
             <div className="mt-10 flex flex-wrap gap-3">
               <Link to="/signup">
