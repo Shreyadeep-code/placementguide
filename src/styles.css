@@ -125,6 +125,102 @@
 .animate-fade-up { animation: fade-up 0.7s ease-out both; }
 .animate-pulse-soft { animation: pulse-soft 4s ease-in-out infinite; }
 
+/* === Landing page premium utilities === */
+@keyframes gradient-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+@keyframes orb-float-a {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(40px, -50px, 0) scale(1.1); }
+}
+@keyframes orb-float-b {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(-50px, 40px, 0) scale(1.15); }
+}
+@keyframes orb-float-c {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50% { transform: translate3d(30px, 30px, 0); }
+}
+@keyframes cta-shimmer {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+@keyframes blink-caret {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+
+.animate-gradient-shift {
+  background-size: 200% 200%;
+  animation: gradient-shift 18s ease infinite;
+}
+.animate-orb-a { animation: orb-float-a 12s ease-in-out infinite; }
+.animate-orb-b { animation: orb-float-b 14s ease-in-out infinite; }
+.animate-orb-c { animation: orb-float-c 10s ease-in-out infinite; }
+.animate-cta-shimmer {
+  background-size: 200% 100%;
+  animation: cta-shimmer 6s linear infinite;
+}
+.caret-blink::after {
+  content: "|";
+  display: inline-block;
+  margin-left: 2px;
+  color: rgb(139, 92, 246);
+  animation: blink-caret 1s steps(1) infinite;
+}
+
+.glass {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+.glass-strong {
+  background: rgba(10, 15, 30, 0.7);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+.glow-blue {
+  box-shadow: 0 0 40px -8px rgba(59, 130, 246, 0.55);
+}
+.glow-purple {
+  box-shadow: 0 0 40px -8px rgba(139, 92, 246, 0.55);
+}
+.glow-mixed {
+  box-shadow:
+    0 0 30px -8px rgba(59, 130, 246, 0.5),
+    0 0 60px -10px rgba(139, 92, 246, 0.35);
+}
+.text-gradient-bp {
+  background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 50%, #c084fc 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.grid-pattern {
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  background-size: 56px 56px;
+}
+.dot-pattern {
+  background-image: radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+.mesh-bg {
+  background-color: #0a0f1e;
+  background-image:
+    radial-gradient(at 20% 10%, rgba(59, 130, 246, 0.18) 0px, transparent 50%),
+    radial-gradient(at 80% 0%, rgba(139, 92, 246, 0.18) 0px, transparent 50%),
+    radial-gradient(at 50% 100%, rgba(56, 189, 248, 0.10) 0px, transparent 50%);
+}
+.hero-gradient-anim {
+  background: linear-gradient(120deg, #0a0f1e 0%, #111a36 25%, #1a1244 55%, #0d1330 80%, #0a0f1e 100%);
+}
+
 .dark {
   --background: oklch(0.129 0.042 264.695);
   --foreground: oklch(0.984 0.003 247.858);
