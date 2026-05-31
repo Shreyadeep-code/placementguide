@@ -26,7 +26,7 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "AI-powered resume review and mock interviews for TCS, Infosys, Wipro, Accenture. Built for Indian engineering students.",
+          "AI-powered resume review and mock interviews for Indian campus placements at top IT and product based companies. Built for Indian engineering students.",
       },
       { property: "og:title", content: "PlaceAI — Crack Your Dream Placement" },
       {
