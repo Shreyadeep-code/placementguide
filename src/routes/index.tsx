@@ -38,11 +38,11 @@ export const Route = createFileRoute("/")({
   component: LandingPage,
 });
 
-const stats = [
-  { value: "10,000+", label: "Students" },
-  { value: "95%", label: "Placement Rate" },
-  { value: "50+", label: "Companies" },
-  { value: "4.9★", label: "Star Rating" },
+const highlights = [
+  { icon: Sparkles, label: "AI Powered Analysis" },
+  { icon: Star, label: "Made for Indian Students \u{1F1EE}\u{1F1F3}" },
+  { icon: GraduationCap, label: "TCS, Infosys, Wipro Focused" },
+  { icon: ArrowRight, label: "Free to Get Started" },
 ];
 
 const features = [
